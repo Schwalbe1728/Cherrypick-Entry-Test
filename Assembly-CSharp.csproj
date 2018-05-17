@@ -64,8 +64,9 @@
      <Compile Include="Assets\Scripts\Map\Pathfinding\DijkstraNode.cs" />
      <Compile Include="Assets\Scripts\Map\Pathfinding\Heap.cs" />
      <Compile Include="Assets\Scripts\Map\Pathfinding\IPathfinder.cs" />
+     <Compile Include="Assets\Scripts\Map\Pathfinding\PathfinderAlgorithm.cs" />
+     <Compile Include="Assets\Scripts\Map\Pathfinding\PathfindingNode.cs" />
      <Compile Include="Assets\Scripts\Map\TranslationRules.cs" />
-     <Compile Include="Assets\TestAStar.cs" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>C:/Users/Schwalbe/Desktop/Sch_Dokumenty/Repozytoria/Cherrypick Entry Test/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>

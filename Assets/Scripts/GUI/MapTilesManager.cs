@@ -50,6 +50,8 @@ public class MapTilesManager : UIBehaviour
 
     private char[,] currentlyDisplayedMap;
     private Dictionary<Vector2Int, MapTileScript> tileColorDictionary;
+    private TileBuildHelper[] obstacleList;
+
     private RectTransform rectTransform;
 
     private int MapWidth { get { return currentlyDisplayedMap != null ? currentlyDisplayedMap.GetLength(0) : 0; } }
@@ -69,7 +71,7 @@ public class MapTilesManager : UIBehaviour
         StartCoroutine(DestroyOldTiles(children));
     }
 
-    public void DisplayMap(char[,] map)
+    public void DisplayMap(char[,] map, System.Action interfaceEnablingAction)
     {
         if (rectTransform == null)
         {
@@ -81,8 +83,12 @@ public class MapTilesManager : UIBehaviour
 
         SetTileSize();
 
+        /*
         TileBuildHelper[] obstacleList = CreateObstacleList();
         CreateMapTiles(obstacleList);
+        */
+
+        StartCoroutine(MapCreation(interfaceEnablingAction));
     }
 
     public void DisplayPath(Vector2Int[] pathCoords)
@@ -107,16 +113,29 @@ public class MapTilesManager : UIBehaviour
 
             MapTileScript.SetUnitSize(tileSize);
         }
+    }    
+
+    private IEnumerator MapCreation(System.Action interfaceEnablingAction)
+    {
+        yield return CreateObstacleList();
+        yield return CreateMapTiles(obstacleList);
+
+        interfaceEnablingAction.Invoke();
     }
 
-    private TileBuildHelper[] CreateObstacleList()
+    private IEnumerator CreateObstacleList()
     {
+        int ceiling = 3000;
+        int counter = 0;
+
         List<TileBuildHelper> result = new List<TileBuildHelper>();
 
         for(int x = 0; x < MapWidth; x++)
         {
             for (int y = 0; y < MapHeight; y++)
             {
+                if ((++counter) % ceiling == 0) yield return new WaitForEndOfFrame();
+
                 ObstacleType obstacle = Translate(x, y);
 
                 result.Add(new TileBuildHelper(new Vector2Int(x, y), obstacle));
@@ -130,10 +149,10 @@ public class MapTilesManager : UIBehaviour
             }
         }
 
-        return result.ToArray();
+        obstacleList = result.ToArray();
     }
 
-    private void CreateMapTiles(TileBuildHelper[] obstaclesToInsert)
+    private IEnumerator CreateMapTiles(TileBuildHelper[] obstaclesToInsert)
     {
         if (tileColorDictionary == null)
         {
@@ -142,12 +161,17 @@ public class MapTilesManager : UIBehaviour
 
         tileColorDictionary.Clear();
 
-        foreach(TileBuildHelper obstacle in obstaclesToInsert)
+        int ceiling = 100;
+        int counter = 0;
+
+        foreach (TileBuildHelper obstacle in obstaclesToInsert)
         {
             if(obstacle.Obstacle == ObstacleType.PartOfObstacle)
             {
                 continue;
             }
+
+            if ((++counter) % ceiling == 0) yield return new WaitForEndOfFrame();
 
             GameObject instancedMapElement = null;
             MapTileScript instancedTileScript = null;
@@ -185,10 +209,10 @@ public class MapTilesManager : UIBehaviour
 
     private IEnumerator DestroyOldTiles(GameObject[] oldTiles)
     {
-        int ceiling = 1000;
+        int ceiling = 3000;
         int counter = 0;
 
-        transform.DetachChildren();
+        //transform.DetachChildren();
 
         for (int i = 0; i < oldTiles.Length; ++i)
         {

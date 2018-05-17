@@ -34,10 +34,11 @@ public class MapDisplayScript : MonoBehaviour
         }
     }
 
-    public void RequestMapGeneration()
+    public void RequestMapGeneration(System.Action interfaceDisablingFunction, System.Action interfaceEnablingFunction)
     {
+        interfaceDisablingFunction.Invoke();
         mapTemplate = mapGenerator.GenerateMap();
-        DisplayMap();
+        DisplayMap(interfaceEnablingFunction);
     }
 
     public void HighlightPath(Vector2Int[] path)
@@ -58,15 +59,16 @@ public class MapDisplayScript : MonoBehaviour
         }
     }
 
-    public void RequestLoadMap(System.Action<string> messageAction)
+    public void RequestLoadMap(System.Action<string> messageAction, System.Action interfaceEnablingAction)
     {
         if (serializationScript.LoadMap(out mapTemplate))
         {
-            DisplayMap();
+            DisplayMap(interfaceEnablingAction);
         }
         else
         {
             messageAction.Invoke("Load Failed");
+            interfaceEnablingAction.Invoke();
         }
     }
 
@@ -78,9 +80,9 @@ public class MapDisplayScript : MonoBehaviour
         //RequestMapGeneration();        
     }
 
-    private void DisplayMap()
+    private void DisplayMap(System.Action interfaceEnablingAction)
     {
         tilesManager.CleanPreviousMap();
-        tilesManager.DisplayMap(mapTemplate);
+        tilesManager.DisplayMap(mapTemplate, interfaceEnablingAction);
     }
 }

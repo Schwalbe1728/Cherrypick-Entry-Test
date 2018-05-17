@@ -10,6 +10,9 @@ public class ConfigurationMenuScript : MonoBehaviour
     [SerializeField]
     private WarningPopupScript warningPopup;
 
+    [SerializeField]
+    private GameObject GUIBlocker;
+
     private IPathfinder pathfinder;
 
     public void SetAStarPathfinder()
@@ -70,6 +73,11 @@ public class ConfigurationMenuScript : MonoBehaviour
         }
     }
 
+    public void GenerateMap()
+    {
+        mapDisplay.RequestMapGeneration(DisableInterface, EnableInterface);
+    }
+
     public void GeneratePathfindingTask()
     {
         pathfinder.LoadMap(mapDisplay.GetMapTemplate());
@@ -117,12 +125,13 @@ public class ConfigurationMenuScript : MonoBehaviour
 
     public void LoadMap()
     {
-        mapDisplay.RequestLoadMap(DisplayCommunicate);
+        mapDisplay.RequestLoadMap(DisplayCommunicate, EnableInterface);
     }
 
     void Awake()
     {
         SetAStarPathfinder();
+        EnableInterface();
     }
     
     private void DisplayCommunicate(string message)
@@ -131,4 +140,14 @@ public class ConfigurationMenuScript : MonoBehaviour
         // wypisz komunikat w GUI
         //Debug.Log(message);
     }    	
+
+    private void DisableInterface()
+    {
+        GUIBlocker.SetActive(true);
+    }
+
+    private void EnableInterface()
+    {
+        GUIBlocker.SetActive(false);
+    }
 }

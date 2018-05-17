@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 using System.Windows.Forms;
+#endif
 using UnityEngine;
 
 public class MapSerializationScript : MonoBehaviour
@@ -13,7 +15,11 @@ public class MapSerializationScript : MonoBehaviour
     public bool SaveMap(char[,] mapToSave)
     {
         bool result = false;
-        string path = StartSaveFileDialog();
+        string path = UnityEngine.Application.persistentDataPath + @"/map1.map";
+
+        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+        path = StartSaveFileDialog();
+        #endif
 
         string mapString = MapTemplateToString(mapToSave);
 
@@ -30,12 +36,14 @@ public class MapSerializationScript : MonoBehaviour
     public bool LoadMap(out char[,] map)
     {
         string textAssetString = "";
-        string path = "";
+        string path = UnityEngine.Application.persistentDataPath + @"/map1.map";
         bool result = false;
 
         map = null;
 
+        #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
         path = StartOpenFileDialog();
+        #endif
 
         if (File.Exists(path))
         {
@@ -96,6 +104,7 @@ public class MapSerializationScript : MonoBehaviour
         return result;
     }
 
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
     private string StartOpenFileDialog()
     {
         return StartFileDialog<OpenFileDialog>();
@@ -125,4 +134,5 @@ public class MapSerializationScript : MonoBehaviour
 
         return resultPath;
     }
+#endif
 }

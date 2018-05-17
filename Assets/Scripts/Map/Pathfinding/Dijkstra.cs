@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Dijkstra : AStar
-{    
-    private new HashSet<DijkstraNode> closed;
-
+public class Dijkstra : PathfinderAlgorithm<DijkstraNode>
+{   
     public Dijkstra()
     {
 
@@ -24,7 +22,7 @@ public class Dijkstra : AStar
         int xMax = map.GetLength(0);
         int yMax = map.GetLength(1);
 
-        open = new MinHeap();
+        open = new MinHeap<DijkstraNode>((s,f) => new DijkstraNode(s));
         closed = new HashSet<DijkstraNode>();
 
         open.Put(new DijkstraNode(start));
@@ -39,7 +37,7 @@ public class Dijkstra : AStar
 
             if(current.Point.Equals(finish))
             {
-                return ProcessPath(current);
+                return current.ProcessPath();
             }
 
             Vector2Int currentNeighbour;

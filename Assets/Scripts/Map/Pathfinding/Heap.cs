@@ -3,31 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MinHeap
+public class MinHeap<T> where T: PathfindingNode
 {    
-    private AStarNode[] heapArray;
+    private T[] heapArray;
 
     private int length;
 
     public int Count { get { return length; } private set { length = value; } }
     public bool IsEmpty { get { return Count == 0; } }
-    public AStarNode PeekMin { get { return heapArray[1]; } }    
+    public T PeekMin { get { return heapArray[1]; } }    
 
-    public MinHeap()
+    public MinHeap(System.Func<Vector2Int, Vector2Int, T> nodeConstructor)
     {
-        heapArray = new AStarNode[2];        
-        heapArray[1] = new AStarNode(new Vector2Int(-1, -1), new Vector2Int(-1, -1));
+        heapArray = new T[2];        
+        heapArray[1] = nodeConstructor(new Vector2Int(-1, -1), new Vector2Int(-1, -1));
     }
 
-    public AStarNode GetMin()
+    public T GetMin()
     {
-        AStarNode result = PeekMin;
+        T result = PeekMin;
 
         RemoveFromHeap(1);      
 
         if(Count < heapArray.Length / 2 && heapArray.Length > 2)
         {
-            System.Array.Resize<AStarNode>(ref heapArray, heapArray.Length / 2);
+            System.Array.Resize<T>(ref heapArray, heapArray.Length / 2);
         }
                 
         WriteHeap("==GET MIN==");
@@ -35,7 +35,7 @@ public class MinHeap
         return result;
     }
 
-    public void Put(AStarNode node)
+    public void Put(T node)
     {
         int existingCopyIndex;
 
@@ -51,13 +51,13 @@ public class MinHeap
             }
         }
 
-        AStarNode temp = node;
+        T temp = node;
 
         Count++;
 
         if(heapArray.Length <= Count)
         {
-            System.Array.Resize<AStarNode>(ref heapArray, heapArray.Length * 2);
+            System.Array.Resize<T>(ref heapArray, heapArray.Length * 2);
         }        
 
         heapArray[Count] = temp;
@@ -82,7 +82,7 @@ public class MinHeap
     private int IndexInHeap(int x, int y)
     {
         return
-            System.Array.FindIndex<AStarNode>(
+            System.Array.FindIndex<T>(
                 heapArray,
                 elem => elem != null && elem.Point.x == x && elem.Point.y == y);
     }
@@ -152,10 +152,26 @@ public class MinHeap
         return result;     
     }
 
+    private int CompareNodes(T nodeA, T nodeB)
+    {
+        int needRandom = -999;
+        int result =
+            nodeA.F > nodeB.F ? -1 :
+                (nodeA.F < nodeB.F ? 1 : needRandom);
+
+        if (result == needRandom)
+        {
+            result =
+                Random.Range(0, 1) == 0 ? -1 : 1;
+        }
+
+        return result;
+    }
+
     private void Swap(int indexA, int indexB)
     {
-        AStarNode A = heapArray[indexA];
-        AStarNode B = heapArray[indexB];
+        T A = heapArray[indexA];
+        T B = heapArray[indexB];
 
         heapArray[indexA] = B;
         heapArray[indexB] = A;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Map.Pathfinding;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -77,6 +78,22 @@ public static class PathfinderExtension
         }
 
         return result;
+    }
+
+    public static Vector2Int[] ProcessPath(this PathfindingNode finishNode)
+    {
+        List<Vector2Int> result = new List<Vector2Int>();
+
+        PathfindingNode current = finishNode;
+
+        do
+        {
+            result.Insert(0, current.Point);
+            current = current.Parent;
+        }
+        while (current != null);
+
+        return result.ToArray();
     }
 }
 
