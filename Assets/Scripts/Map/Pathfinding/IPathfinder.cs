@@ -8,6 +8,7 @@ public interface IPathfinder
     void LoadMap(FieldStatus[,] _map);
     Vector2Int[] CalculatePath(Vector2Int start, Vector2Int finish);
     Vector2Int[] GetTraversibleFields();
+    bool MapExists { get; }
 }
 
 public static class PathfinderExtension
@@ -59,22 +60,25 @@ public static class PathfinderExtension
     public static Vector2Int GetFreeField(this IPathfinder traversibleMapSource, Vector2Int avoid, out bool valid)
     {
         valid = false;
-
         Vector2Int result = Vector2Int.left;
-        Vector2Int[] traversibleFields = traversibleMapSource.GetTraversibleFields();
 
-        if(traversibleFields.Length > 1 || (traversibleFields.Length == 1 && !traversibleFields[0].Equals(avoid)) )
+        if (traversibleMapSource.MapExists)
         {
-            int index = -1;
+            Vector2Int[] traversibleFields = traversibleMapSource.GetTraversibleFields();
 
-            do
+            if (traversibleFields.Length > 1 || (traversibleFields.Length == 1 && !traversibleFields[0].Equals(avoid)))
             {
-                index = Random.Range(0, traversibleFields.Length);
-            }
-            while (traversibleFields[index].Equals(avoid));
+                int index = -1;
 
-            result = traversibleFields[index];
-            valid = true;
+                do
+                {
+                    index = Random.Range(0, traversibleFields.Length);
+                }
+                while (traversibleFields[index].Equals(avoid));
+
+                result = traversibleFields[index];
+                valid = true;
+            }
         }
 
         return result;

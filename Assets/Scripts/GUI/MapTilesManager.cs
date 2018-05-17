@@ -71,7 +71,7 @@ public class MapTilesManager : UIBehaviour
         StartCoroutine(DestroyOldTiles(children));
     }
 
-    public void DisplayMap(char[,] map, System.Action interfaceEnablingAction)
+    public void DisplayMap(char[,] map, MapDisplayScript.MapCreationFinished interfaceEnablingAction)
     {
         if (rectTransform == null)
         {
@@ -115,7 +115,7 @@ public class MapTilesManager : UIBehaviour
         }
     }    
 
-    private IEnumerator MapCreation(System.Action interfaceEnablingAction)
+    private IEnumerator MapCreation(MapDisplayScript.MapCreationFinished interfaceEnablingAction)
     {
         yield return CreateObstacleList();
         yield return CreateMapTiles(obstacleList);

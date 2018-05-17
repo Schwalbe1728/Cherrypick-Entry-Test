@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class MapDisplayScript : MonoBehaviour
 {
+    public delegate void MapCreationFinished();
+     
     private MapTilesManager tilesManager;
     private MapSerializationScript serializationScript;
 
     private MapGenerator mapGenerator;
     private char[,] mapTemplate;
+
+    private MapCreationFinished OnMapFinished;
 
     public void SetN(int n, System.Action<string> messageAction, System.Action successAction)
     {
@@ -34,11 +38,15 @@ public class MapDisplayScript : MonoBehaviour
         }
     }
 
-    public void RequestMapGeneration(System.Action interfaceDisablingFunction, System.Action interfaceEnablingFunction)
+    public void RegisterToOnMapFinished(MapCreationFinished listener)
     {
-        interfaceDisablingFunction.Invoke();
+        OnMapFinished += listener;
+    }
+
+    public void RequestMapGeneration()
+    {        
         mapTemplate = mapGenerator.GenerateMap();
-        DisplayMap(interfaceEnablingFunction);
+        DisplayMap(OnMapFinished);
     }
 
     public void HighlightPath(Vector2Int[] path)
@@ -59,7 +67,7 @@ public class MapDisplayScript : MonoBehaviour
         }
     }
 
-    public void RequestLoadMap(System.Action<string> messageAction, System.Action interfaceEnablingAction)
+    public void RequestLoadMap(System.Action<string> messageAction, MapCreationFinished interfaceEnablingAction)
     {
         if (serializationScript.LoadMap(out mapTemplate))
         {
@@ -80,7 +88,7 @@ public class MapDisplayScript : MonoBehaviour
         //RequestMapGeneration();        
     }
 
-    private void DisplayMap(System.Action interfaceEnablingAction)
+    private void DisplayMap(MapCreationFinished interfaceEnablingAction)
     {
         tilesManager.CleanPreviousMap();
         tilesManager.DisplayMap(mapTemplate, interfaceEnablingAction);

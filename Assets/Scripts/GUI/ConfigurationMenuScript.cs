@@ -12,8 +12,10 @@ public class ConfigurationMenuScript : MonoBehaviour
 
     [SerializeField]
     private GameObject GUIBlocker;
-
     private IPathfinder pathfinder;
+
+    private Vector2Int pathStart = Vector2Int.left;
+    private Vector2Int pathFinish = Vector2Int.left;
 
     public void SetAStarPathfinder()
     {
@@ -75,26 +77,15 @@ public class ConfigurationMenuScript : MonoBehaviour
 
     public void GenerateMap()
     {
-        mapDisplay.RequestMapGeneration(DisableInterface, EnableInterface);
+        DisableInterface();
+        mapDisplay.RequestMapGeneration();
     }
 
-    public void GeneratePathfindingTask()
+    public void ChoosePathEndpoints()
     {
-        pathfinder.LoadMap(mapDisplay.GetMapTemplate());
+        bool validEnd;        
 
-        bool validEnd;
-        Vector2Int start;
-        Vector2Int finish;
-
-        start = pathfinder.GetFreeField(Vector2Int.left, out validEnd);
-
-        if(!validEnd)
-        {
-            DisplayCommunicate("Couldn't find valid map points for start and finish");
-            return;
-        }
-
-        finish = pathfinder.GetFreeField(start, out validEnd);
+        pathStart = pathfinder.GetFreeField(Vector2Int.left, out validEnd);
 
         if (!validEnd)
         {
@@ -102,13 +93,32 @@ public class ConfigurationMenuScript : MonoBehaviour
             return;
         }
 
-        //Debug.Log(finish);
+        pathFinish = pathfinder.GetFreeField(pathStart, out validEnd);
 
-        Vector2Int[] calculatedPath = pathfinder.CalculatePath(start, finish);
+        if (!validEnd)
+        {
+            DisplayCommunicate("Couldn't find valid map points for start and finish");
+            return;
+        }
+
+        Vector2Int[] pathEnds = { pathStart, pathFinish };
+        mapDisplay.HighlightPath(pathEnds);
+    }
+
+    public void GeneratePathfindingTask()
+    {
+        LoadMapToPathfinder();
+
+        if (pathStart.Equals(Vector2Int.left) || pathFinish.Equals(Vector2Int.left))
+        {
+            ChoosePathEndpoints();
+        }
+
+        Vector2Int[] calculatedPath = pathfinder.CalculatePath(pathStart, pathFinish);
 
         if(calculatedPath == null || calculatedPath.Length < 1)
         {
-            DisplayCommunicate("Path not found! (" + start + " => " + finish + ")");
+            DisplayCommunicate("Path not found! (" + pathStart + " => " + pathFinish + ")");
             return;
         }
         else
@@ -132,6 +142,15 @@ public class ConfigurationMenuScript : MonoBehaviour
     {
         SetAStarPathfinder();
         EnableInterface();
+
+        mapDisplay.RegisterToOnMapFinished(EnableInterface);
+        mapDisplay.RegisterToOnMapFinished(LoadMapToPathfinder);
+        mapDisplay.RegisterToOnMapFinished(ChoosePathEndpoints);
+    }
+
+    private void LoadMapToPathfinder()
+    {
+        pathfinder.LoadMap(mapDisplay.GetMapTemplate());
     }
     
     private void DisplayCommunicate(string message)

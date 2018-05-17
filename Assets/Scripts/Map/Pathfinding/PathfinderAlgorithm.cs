@@ -14,6 +14,8 @@ public abstract class PathfinderAlgorithm<T> : IPathfinder
     protected MinHeap<T> open;
     protected HashSet<T> closed;
 
+    public bool MapExists { get { return map != null && map.GetLength(0) > 0 && map.GetLength(1) > 0; } }
+
     public abstract Vector2Int[] CalculatePath(Vector2Int start, Vector2Int finish);
 
     public Vector2Int[] GetTraversibleFields()

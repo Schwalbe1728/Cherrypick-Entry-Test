@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MapGenerator
-{
+{    
     public const int MinSize = 10;
     public const int MinObstacles = 0;
     public const float MaxObstaclesPercent = 0.3f;
 
     private int configMapSize;
     private int configObstacleCount;
-
+    
     public MapGenerator(int size = MinSize, int obstacles = MinObstacles)
     {
         if(!SetNParameter(size))
@@ -48,7 +48,7 @@ public class MapGenerator
         }
 
         return result;
-    }
+    }    
 
     public char[,] GenerateMap()
     {
